@@ -92,6 +92,7 @@ public class MatisseActivity extends AppCompatActivity implements
     private LinearLayout mOriginalLayout;
     private CheckRadioView mOriginal;
     private boolean mOriginalEnable;
+    private Fragment fragment;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -386,20 +387,26 @@ public class MatisseActivity extends AppCompatActivity implements
         mAlbumsAdapter.swapCursor(null);
     }
 
-    private void onAlbumSelected(Album album) {
-        if (album.isAll() && album.isEmpty()) {
-            mContainer.setVisibility(View.GONE);
-            mEmptyView.setVisibility(View.VISIBLE);
-        } else {
-            mContainer.setVisibility(View.VISIBLE);
-            mEmptyView.setVisibility(View.GONE);
-            Fragment fragment = MediaSelectionFragment.newInstance(album);
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.container, fragment, MediaSelectionFragment.class.getSimpleName())
-                    .commitAllowingStateLoss();
+        private void onAlbumSelected(Album album) {
+            if (album.isAll() && album.isEmpty()) {
+                mContainer.setVisibility(View.GONE);
+                mEmptyView.setVisibility(View.VISIBLE);
+            } else {
+                mContainer.setVisibility(View.VISIBLE);
+                mEmptyView.setVisibility(View.GONE);
+                if (fragment != null) {
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .remove(fragment)
+                            .commitAllowingStateLoss();
+                }
+                fragment = MediaSelectionFragment.newInstance(album);
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .add(R.id.container, fragment, MediaSelectionFragment.class.getSimpleName())
+                        .commitAllowingStateLoss();
+            }
         }
-    }
 
     @Override
     public void onUpdate() {
